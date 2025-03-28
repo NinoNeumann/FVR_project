@@ -99,7 +99,7 @@ def init_wandb_logger(opt):
 
     wandb_mode = opt['logger']['wandb'].get('mode', 'offline')  # tree mode : offline online disabled
     
-    wandb.init(id=wandb_id, resume=resume, name=opt['name'], config=opt, project=project, sync_tensorboard=True, , mode=wandb_mode)
+    wandb.init(id=wandb_id, resume=resume, name=opt['name'], config=opt, project=project, sync_tensorboard=True, mode=wandb_mode)
 
     logger.info(f'Use wandb logger with id={wandb_id}; project={project}; mode: {wandb_mode}. ')
 
