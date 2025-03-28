@@ -300,7 +300,7 @@ if __name__ == "__main__":
     # 定义配置字典
     opt = {
         # 'dataroot_gt': '/cpfs01/projects-HDD/cfff-721febfbdfb0_HDD/public/anna/workspaces/HanlinShang/VFHQ_DATA_resized',  # 替换为实际的 GT 数据根路径
-        'global_meta_info_file': './vfhq_test20_and_celebv_test20.txt',  # 替换为实际的全局元信息文件路径
+        'global_meta_info_file': './vfhq_test50.txt',  # 替换为实际的全局元信息文件路径
         'dataroot_meta_info': [
             '/cpfs01/projects-HDD/cfff-721febfbdfb0_HDD/public/anna/workspaces/HanlinShang/Celebv_Text_Data/celebvtext_6_images_512x512_test20_ldmks',
             '/cpfs01/projects-HDD/cfff-721febfbdfb0_HDD/public/anna/workspaces/HanlinShang/CodeFormer/vfhq_test_landmarks',

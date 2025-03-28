@@ -252,7 +252,8 @@ class CodeFormerDirichletVideoModel(SRModel):
 
         for idx, val_data in enumerate(dataloader):
             # img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
-            img_name = val_data["key"][0].split('/')[0]
+            # img_name = val_data["key"][0].split('/')[0]
+            img_name = val_data["key"][0].split('/')[-3]
             self.feed_data(val_data)
             self.test()
 
