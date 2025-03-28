@@ -60,7 +60,8 @@ datasets:
     # dataroot_meta_info: ./vfhq_val_landmarks
     # dataroot_gt: ../../VFHQ_Test/TEST_DATA
     global_meta_info_file: ./vfhq_test50.txt
-    dataroot_meta_info: ../../CodeFormer/vfhq_test_landmarks
+    dataroot_meta_info: 
+      - ../../CodeFormer/vfhq_test_landmarks
     io_backend:
       type: disk
 
