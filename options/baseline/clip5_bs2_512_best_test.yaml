@@ -9,9 +9,10 @@ datasets:
   train:
     name: VFHQ-Train
     type: VFHQRealDegradationDatasetNew
-    dataroot_gt: ../../VFHQ_DATA_resized/  # place to store training data
-    global_meta_info_file:  ./vfhq_training_data_info.txt
-    dataroot_meta_info: ../../CodeFormer/vfhq_train_landmarks
+    global_meta_info_file: ./vfhq_train_and_celebv_train.txt
+    dataroot_meta_info: 
+      - ../../CodeFormer/vfhq_train_landmarks
+      - ../../Celebv_Text_Data/celebvtext_6_images_512x512_ldmks
     io_backend:
       type: disk
 
@@ -57,9 +58,9 @@ datasets:
     # dataroot_gt: ../VFHQ_Test/VAL_cases
     # global_meta_info_file: ./vfhq_val_data_info.txt
     # dataroot_meta_info: ./vfhq_val_landmarks
-    dataroot_gt: ../../VFHQ_Test/TEST_DATA
-    global_meta_info_file: ./vfhq_test_50_info.txt
-    dataroot_meta_info: ../../CodeFormer/vfhq_train_landmarks
+    # dataroot_gt: ../../VFHQ_Test/TEST_DATA
+    global_meta_info_file: ./vfhq_test50.txt
+    dataroot_meta_info: ../../CodeFormer/vfhq_test_landmarks
     io_backend:
       type: disk
 
@@ -212,7 +213,8 @@ logger:
   save_checkpoint_freq: !!float 100
   use_tb_logger: true
   wandb:
-    project: codeformer_dirichlet_clip5_test
+    mode: offline  # or online
+    project: codeformer_dirichlet_clip5_bs2_512_best_test
     resume_id: ~
 
 # dist training settings
