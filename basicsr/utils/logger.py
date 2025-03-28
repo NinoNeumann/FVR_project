@@ -97,9 +97,11 @@ def init_wandb_logger(opt):
         wandb_id = wandb.util.generate_id()
         resume = 'never'
 
-    wandb.init(id=wandb_id, resume=resume, name=opt['name'], config=opt, project=project, sync_tensorboard=True)
+    wandb_mode = opt['logger']['wandb'].get('mode', 'offline')  # tree mode : offline online disabled
+    
+    wandb.init(id=wandb_id, resume=resume, name=opt['name'], config=opt, project=project, sync_tensorboard=True, , mode=wandb_mode)
 
-    logger.info(f'Use wandb logger with id={wandb_id}; project={project}.')
+    logger.info(f'Use wandb logger with id={wandb_id}; project={project}; mode: {wandb_mode}. ')
 
 
 def get_root_logger(logger_name='basicsr', log_level=logging.INFO, log_file=None):
