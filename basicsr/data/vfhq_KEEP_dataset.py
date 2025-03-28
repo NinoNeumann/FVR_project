@@ -19,7 +19,7 @@ from facelib.utils.face_restoration_helper import FaceAligner
 from torch.utils import data as data
 
 
-# @DATASET_REGISTRY.register()
+@DATASET_REGISTRY.register()
 class VFHQRealDegradationDatasetNew(data.Dataset):
     """Support for blind setting adopted in paper. We excludes the random scale compared to GFPGAN.
 
