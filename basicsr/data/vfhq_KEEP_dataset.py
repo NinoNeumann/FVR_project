@@ -19,7 +19,7 @@ from facelib.utils.face_restoration_helper import FaceAligner
 from torch.utils import data as data
 
 
-@DATASET_REGISTRY.register()
+# @DATASET_REGISTRY.register()
 class VFHQRealDegradationDatasetNew(data.Dataset):
     """Support for blind setting adopted in paper. We excludes the random scale compared to GFPGAN.
 
@@ -53,7 +53,7 @@ class VFHQRealDegradationDatasetNew(data.Dataset):
     def __init__(self, opt):
         super(VFHQRealDegradationDatasetNew, self).__init__()
         self.opt = opt
-        self.gt_root = Path(opt['dataroot_gt'])
+        # self.gt_root = Path(opt['dataroot_gt'])
 
         self.num_frame = opt['video_length'] # 5
         self.scale = opt['scale'] # [1, 4]
@@ -71,10 +71,10 @@ class VFHQRealDegradationDatasetNew(data.Dataset):
         self.file_client = None
         self.io_backend_opt = opt['io_backend']
         self.is_lmdb = False
-        if self.io_backend_opt['type'] == 'lmdb':
-            self.is_lmdb = True
-            self.io_backend_opt['db_paths'] = [self.gt_root]
-            self.io_backend_opt['client_keys'] = ['gt']
+        # if self.io_backend_opt['type'] == 'lmdb':
+        #     self.is_lmdb = True
+        #     self.io_backend_opt['db_paths'] = [self.gt_root]
+        #     self.io_backend_opt['client_keys'] = ['gt']
 
         # temporal augmentation configs
         self.interval_list = opt['interval_list'] # [1]
@@ -128,13 +128,9 @@ class VFHQRealDegradationDatasetNew(data.Dataset):
         clip_length = int(key.split('/')[-2])
         frame_idx = int(key.split('/')[-1])
         clip_name = real_clip_path.split('/')[-1]
-
-        if os.path.exists(os.path.join(self.gt_root, "train", clip_name)):
-            paths = sorted(list(scandir(os.path.join(self.gt_root, "train", clip_name))))
-        elif os.path.exists(os.path.join(self.gt_root, "test", clip_name)):
-            paths = sorted(list(scandir(os.path.join(self.gt_root, "test", clip_name))))
-        else:
-            paths = sorted(list(scandir(os.path.join(self.gt_root, clip_name))))
+        # print(f"data path: {real_clip_path}")
+        paths = sorted(list(scandir(real_clip_path)))
+        # return paths
 
         # determine the neighboring frames
         interval = random.choice(self.interval_list)
@@ -166,7 +162,12 @@ class VFHQRealDegradationDatasetNew(data.Dataset):
 
         need_align = False
         if self.need_align:
-            clip_info_path = os.path.join(self.dataroot_meta_info, f'{clip_name}.txt')
+            clip_info_path = None
+            for dataroot_meta_info_prefix in self.dataroot_meta_info:
+                clip_info_path = os.path.join(dataroot_meta_info_prefix, f'{clip_name}.txt')
+                if os.path.exists(clip_info_path):
+                    break
+        
             if os.path.exists(clip_info_path):
                 need_align = True
                 clip_info = []
@@ -176,11 +177,11 @@ class VFHQRealDegradationDatasetNew(data.Dataset):
                         clip_info.append(line)
 
         for neighbor in neighbor_list:
-            img_gt_path = os.path.join(self.gt_root, clip_name, paths[neighbor])
-            if not os.path.exists(img_gt_path):
-                img_gt_path = os.path.join(self.gt_root, "train", clip_name, paths[neighbor])
-            if not os.path.exists(img_gt_path):
-                img_gt_path = os.path.join(self.gt_root, "test", clip_name, paths[neighbor])
+            img_gt_path = os.path.join(real_clip_path, paths[neighbor])
+            # if not os.path.exists(img_gt_path):
+            #     img_gt_path = os.path.join(self.gt_root, "train", clip_name, paths[neighbor])
+            # if not os.path.exists(img_gt_path):
+            #     img_gt_path = os.path.join(self.gt_root, "test", clip_name, paths[neighbor])
 
             img_gt = np.asarray(Image.open(img_gt_path))[:, :, ::-1] / 255.0
             img_gts.append(img_gt)
@@ -298,15 +299,18 @@ if __name__ == "__main__":
     from PIL import Image
     # 定义配置字典
     opt = {
-        'dataroot_gt': '/cpfs01/projects-HDD/cfff-721febfbdfb0_HDD/public/anna/workspaces/HanlinShang/VFHQ_DATA_resized',  # 替换为实际的 GT 数据根路径
-        'global_meta_info_file': './vfhq_training_data_info.txt',  # 替换为实际的全局元信息文件路径
-        'dataroot_meta_info': './vfhq_train_landmarks',
+        # 'dataroot_gt': '/cpfs01/projects-HDD/cfff-721febfbdfb0_HDD/public/anna/workspaces/HanlinShang/VFHQ_DATA_resized',  # 替换为实际的 GT 数据根路径
+        'global_meta_info_file': './vfhq_test20_and_celebv_test20.txt',  # 替换为实际的全局元信息文件路径
+        'dataroot_meta_info': [
+            '/cpfs01/projects-HDD/cfff-721febfbdfb0_HDD/public/anna/workspaces/HanlinShang/Celebv_Text_Data/celebvtext_6_images_512x512_test20_ldmks',
+            '/cpfs01/projects-HDD/cfff-721febfbdfb0_HDD/public/anna/workspaces/HanlinShang/CodeFormer/vfhq_test_landmarks',
+            ],
         'io_backend': {
             'type': 'disk'              # 这里假设使用磁盘作为 IO 后端
         },
         'video_length': 3,              # 视频帧的数量
         'scale': 4,                     # 下采样比例
-        'need_align': False,            # 是否需要对齐
+        'need_align': True,             # 是否需要对齐
         'normalize': True,              # 是否进行归一化
         'interval_list': [1, 2],        # 时间间隔列表
         'random_reverse': True,         # 是否随机反转帧顺序
@@ -336,6 +340,7 @@ if __name__ == "__main__":
 
     # 从数据集中获取一个样本
     for idx, data in enumerate(dataloader):
+        
         if idx > 20:
             break
         lq = data['in']
