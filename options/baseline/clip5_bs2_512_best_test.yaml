@@ -1,7 +1,7 @@
 # general settings
 name: codeformer_dirichlet_clip5_bs2_align_nofix_kl1.0
 model_type: CodeFormerDirichletVideoModel
-num_gpu: 1
+num_gpu: 2
 manual_seed: 0
 
 # dataset and data loader settings
@@ -199,7 +199,7 @@ train:
 
 # validation settings
 val:
-  val_freq: !!float 10 # no validation
+  val_freq: !!float 100 # no validation
   save_img: true
 
   metrics:
