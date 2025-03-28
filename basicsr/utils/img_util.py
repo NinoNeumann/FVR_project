@@ -1,6 +1,7 @@
 import cv2
 import math
 import numpy as np
+from PIL import Image
 import os
 import torch
 from torchvision.utils import make_grid
@@ -24,6 +25,7 @@ def img2tensor(imgs, bgr2rgb=True, float32=True):
             if img.dtype == 'float64':
                 img = img.astype('float32')
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        
         img = torch.from_numpy(img.transpose(2, 0, 1))
         if float32:
             img = img.float()
@@ -111,6 +113,33 @@ def tensor2img_fast(tensor, rgb2bgr=True, min_max=(0, 1)):
     return output
 
 
+def tensor2imgs(tensor, rgb2bgr=True, min_max=(0, 1)):
+    """Convert a 4D torch tensor to a list of numpy images.
+
+    Args:
+        tensor (Tensor): A 4D torch tensor with shape (B, C, H, W).
+        rgb2bgr (bool): Whether to change rgb to bgr. Default: True.
+        min_max (tuple[int]): min and max values for clamp.
+
+    Returns:
+        list: A list of numpy arrays representing images.
+    """
+    # 检查输入是否为 4D 张量
+    if tensor.dim() != 4:
+        raise ValueError(f"Input tensor should be 4D (B, C, H, W), but got {tensor.dim()}D tensor.")
+
+    num_images = tensor.size(0)
+    image_list = []
+
+    # 遍历批量中的每个图像
+    for i in range(num_images):
+        single_image_tensor = tensor[i].unsqueeze(0)  # 提取单张图像并添加一个维度以匹配 tensor2img_fast 的输入要求
+        single_image_np = tensor2img_fast(single_image_tensor, rgb2bgr=rgb2bgr, min_max=min_max)
+        image_list.append(single_image_np)
+
+    return image_list
+
+
 def imfrombytes(content, flag='color', float32=False):
     """Read an image from bytes.
 
@@ -150,6 +179,40 @@ def imwrite(img, file_path, params=None, auto_mkdir=True):
         os.makedirs(dir_name, exist_ok=True)
     return cv2.imwrite(file_path, img, params)
 
+def images_to_gif(image_list, output_path, duration=100, loop=0):
+    """
+    将包含 numpy.ndarray 类型图像的列表拼接成一个 GIF 动画。
+
+    Args:
+        image_list (list): 包含 numpy.ndarray 对象的列表，代表图像数据。
+        output_path (str): 输出 GIF 文件的路径。
+        duration (int): 每一帧的显示时间（毫秒），默认为 100 毫秒。
+        loop (int): GIF 动画的循环次数，0 表示无限循环，默认为 0。
+    """
+    # 确保 image_list 不为空
+    if not image_list:
+        print("图像列表为空，无法创建 GIF。")
+        return
+
+    pil_images = []
+    for img in image_list:
+        # 检查图像是否为单通道灰度图
+        if len(img.shape) == 2:
+            pil_img = Image.fromarray(img, mode='L')
+        else:
+            # 通常 OpenCV 读取的图像是 BGR 格式，而 PIL 使用 RGB 格式，需要转换
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) if 'cv2' in globals() else img
+            pil_img = Image.fromarray(img)
+        pil_images.append(pil_img)
+
+    # 保存为 GIF
+    pil_images[0].save(
+        output_path,
+        save_all=True,
+        append_images=pil_images[1:],
+        duration=duration,
+        loop=loop
+    )
 
 def crop_border(imgs, crop_border):
     """Crop borders of images.
@@ -168,4 +231,4 @@ def crop_border(imgs, crop_border):
             return [v[crop_border:-crop_border, crop_border:-crop_border, ...] for v in imgs]
         else:
             return imgs[crop_border:-crop_border, crop_border:-crop_border, ...]
-    
+
