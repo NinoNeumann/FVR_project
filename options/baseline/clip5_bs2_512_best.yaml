@@ -7,11 +7,12 @@ manual_seed: 0
 # dataset and data loader settings
 datasets:
   train:
-    name: VFHQ-Train
+    name: Celebv_Text-VFHQ-Train
     type: VFHQRealDegradationDatasetNew
-    dataroot_gt: ../../VFHQ_DATA_resized/  # place to store training data
-    global_meta_info_file:  ./vfhq_training_data_info.txt
-    dataroot_meta_info: ../../CodeFormer/vfhq_train_landmarks
+    global_meta_info_file: ./vfhq_train_and_celebv_train.txt
+    dataroot_meta_info: 
+      - ../../CodeFormer/vfhq_train_landmarks
+      - ../../Celebv_Text_Data/celebvtext_6_images_512x512_ldmks
     io_backend:
       type: disk
 
@@ -54,12 +55,9 @@ datasets:
   val:
     name: VFHQ-Test-50
     type: VFHQRealDegradationDatasetNew
-    # dataroot_gt: ../VFHQ_Test/VAL_cases
-    # global_meta_info_file: ./vfhq_val_data_info.txt
-    # dataroot_meta_info: ./vfhq_val_landmarks
-    dataroot_gt: ../../VFHQ_Test/TEST_DATA
-    global_meta_info_file: ./vfhq_test_50_info.txt
-    dataroot_meta_info: ../../CodeFormer/vfhq_train_landmarks
+    global_meta_info_file: ./vfhq_test50.txt
+    dataroot_meta_info: 
+      - ../../CodeFormer/vfhq_test_landmarks
     io_backend:
       type: disk
 
@@ -212,6 +210,7 @@ logger:
   save_checkpoint_freq: !!float 1000
   use_tb_logger: true
   wandb:
+    mode: offline  # or online
     project: codeformer_dirichlet_clip5
     resume_id: ~
 

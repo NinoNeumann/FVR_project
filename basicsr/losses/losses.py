@@ -11,6 +11,8 @@ from .loss_util import weighted_loss
 
 _reduction_modes = ['none', 'mean', 'sum']
 
+LPIPS_MODEL_PATH = "/cpfs01/projects-HDD/cfff-721febfbdfb0_HDD/public/anna/workspaces/HanlinShang/miniconda3/envs/codeformer_new/lib/python3.8/site-packages/lpips/weights/v0.1/vgg.pth"
+
 
 @weighted_loss
 def l1_loss(pred, target):
@@ -260,7 +262,7 @@ class LPIPSLoss(nn.Module):
             use_input_norm=True,
             range_norm=False,):
         super(LPIPSLoss, self).__init__()
-        self.perceptual = lpips.LPIPS(net="vgg", spatial=False).eval()
+        self.perceptual = lpips.LPIPS(net="vgg", spatial=False, model_path=LPIPS_MODEL_PATH).eval()
         self.loss_weight = loss_weight
         self.use_input_norm = use_input_norm
         self.range_norm = range_norm
